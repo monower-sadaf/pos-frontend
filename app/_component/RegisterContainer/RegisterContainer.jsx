@@ -1,28 +1,31 @@
 'use client';
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 
-const LoginContainer = () => {
+
+const RegisterContainer = () => {
     const [loading, setLoading] = useState(false);
+    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const router = useRouter();
+    const [confirmPassword, setConfirmPassword] = useState('');
 
 
-    const HandleLogin = async (e) => {
+    const HandleRegister = async (e) => {
         e.preventDefault();
         setLoading(true);
 
-        const res = await fetch(process.env.NEXT_PUBLIC_API_URL + '/login', {
+        const res = await fetch(process.env.NEXT_PUBLIC_API_URL + '/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
+                name,
                 email,
-                password
+                password,
+                password_confirmation: confirmPassword
             })
         }).catch((err) => {
             console.log(err);
@@ -36,23 +39,23 @@ const LoginContainer = () => {
             const data = await res.json();
             console.log('response after ok: ', data);
 
-            const accessToken = data.access_token;
-            document.cookie = `user=${JSON.stringify({ token: accessToken })}; Path=/; Max-Age=3600; Secure; SameSite=Strict`;
-
-            router.push('/');
         }
-
-
     }
-
-
 
 
     return (
         <section className="min-h-screen flex justify-center items-center bg-slate-200">
-            <form onSubmit={HandleLogin} method="post" className="bg-white p-4">
-                <h1 className="text-center text-2xl">Login</h1>
+            <form onSubmit={HandleRegister} method="post" className="bg-white p-4">
+                <h1 className="text-center text-2xl">Register</h1>
                 <div className="flex flex-col gap-2">
+                    <div>
+                        <fieldset className="border border-slate-400 px-2 rounded">
+                            <legend>
+                                <label htmlFor="email">Name</label>
+                            </legend>
+                            <input value={name} onChange={(e) => setName(e.target.value)} type="text" name="name" id="name" className="w-full outline-none py-1" placeholder="Enter your Name" />
+                        </fieldset>
+                    </div>
                     <div>
                         <fieldset className="border border-slate-400 px-2 rounded">
                             <legend>
@@ -69,9 +72,17 @@ const LoginContainer = () => {
                             <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" name="password" id="password" className="w-full outline-none py-1" placeholder="Enter your password" />
                         </fieldset>
                     </div>
+                    <div>
+                        <fieldset className="border border-slate-400 px-2 rounded">
+                            <legend>
+                                <label htmlFor="confirmPassword">Confirm Password</label>
+                            </legend>
+                            <input value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} type="password" name="confirmPassword" id="confirmPassword" className="w-full outline-none py-1" placeholder="Confirm your password" />
+                        </fieldset>
+                    </div>
 
                     <div className="flex justify-end">
-                        <button type="submit" className="bg-blue-600 text-white py-1 px-2 rounded">Login</button>
+                        <button type="submit" className="bg-blue-600 text-white py-1 px-2 rounded">Register</button>
                     </div>
                 </div>
 
@@ -80,4 +91,4 @@ const LoginContainer = () => {
     )
 };
 
-export default LoginContainer;
+export default RegisterContainer;
