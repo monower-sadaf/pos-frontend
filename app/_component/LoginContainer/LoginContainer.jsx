@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { login } from "@/app/_api";
 import Swal from "sweetalert2";
@@ -11,7 +10,6 @@ const LoginContainer = () => {
     const [loading, setLoading] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const router = useRouter();
     const { login: setAuth } = useAuth();
 
     const HandleLogin = async (e) => {
@@ -32,16 +30,10 @@ const LoginContainer = () => {
                 const data = res.data;
                 const accessToken = data.access_token;
 
-                // Save auth state in context
                 setAuth(data.user, accessToken);
+                
+                login(data.user, accessToken);
 
-                // Optionally store in cookies for persistence
-                document.cookie = `user=${JSON.stringify({
-                    token: accessToken,
-                    user: data?.user,
-                })}; Path=/; Max-Age=3600; Secure; SameSite=Strict`;
-
-                router.push("/");
             } else {
                 Swal.fire({
                     icon: "error",
@@ -116,8 +108,8 @@ const LoginContainer = () => {
 
             <div className="mt-4">
                 <p>
-                    Don't have an account?{" "}
-                    <Link href={{ pathname: "/register" }} shallow>
+                    Don't have an account?
+                    <Link href={{ pathname: "/register" }} shallow className="text-blue-600 ml-2">
                         Register
                     </Link>
                 </p>

@@ -1,17 +1,17 @@
 'use client';
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
 const Sidebar = () => {
-    const router = useRouter();
     const { auth, logout } = useAuth();
 
 
     return (
         <div className="bg-gray-200 min-w-60 p-4">
-            <h1 className="text-xl font-bold mb-4">Sidebar</h1>
+            <h1 className="text-xl font-bold mb-4">
+                {auth?.user?.name}
+            </h1>
 
             <ul className="space-y-2">
                 <li>

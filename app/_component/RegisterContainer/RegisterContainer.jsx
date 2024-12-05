@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from "react";
+import Link from "next/link";
 
 
 
@@ -44,7 +45,7 @@ const RegisterContainer = () => {
 
 
     return (
-        <section className="min-h-screen flex justify-center items-center bg-slate-200">
+        <section className="min-h-screen flex flex-col justify-center items-center bg-slate-200">
             <form onSubmit={HandleRegister} method="post" className="bg-white p-4">
                 <h1 className="text-center text-2xl">Register</h1>
                 <div className="flex flex-col gap-2">
@@ -87,6 +88,16 @@ const RegisterContainer = () => {
                 </div>
 
             </form>
+
+
+            <div className="mt-4">
+                <p className="text-center">
+                    Already have an account?
+                    <Link href={{ pathname: "/login" }} shallow className="text-blue-600 hover:underline ml-2">
+                        Login
+                    </Link>
+                </p>
+            </div>
         </section>
     )
 };

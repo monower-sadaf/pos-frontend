@@ -1,15 +1,16 @@
 export const revalidate = 3600;
 
-
+import { cookies } from "next/headers";
 import PosContainer from "@/app/_component/PosContainer/PosContainer";
-
+import { getProducts } from "@/app/_api";
 
 const Home = async () => {
+    const cookieStore = cookies();
+    const userCookie = cookieStore.get('user');
+    const token = userCookie ? JSON.parse(userCookie.value).token : null;
 
-    const data = await fetch(process.env.NEXT_PUBLIC_API_URL + '/products').then((res) => res.json());
+    const data = await getProducts(token).catch((err) => console.log(err));
 
-
-    // console.log('data: ', data);
 
     return (
         <PosContainer data={data} />

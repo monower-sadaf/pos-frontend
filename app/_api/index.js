@@ -1,3 +1,4 @@
+
 export const proceeedSale = async (data) => {
     const response = await fetch(process.env.NEXT_PUBLIC_API_URL + '/pos', {
         method: 'POST',
@@ -9,7 +10,7 @@ export const proceeedSale = async (data) => {
 
     if (!response.ok) {
         throw new Error('Failed to process sale.');
-    }else{
+    } else {
         return response.json();
     }
 };
@@ -23,5 +24,19 @@ export const login = async (data) => {
         body: JSON.stringify(data),
     });
 
+    return response.json();
+};
+
+
+export const getProducts = async (token) => {
+    const response = await fetch(process.env.NEXT_PUBLIC_API_URL + '/products', {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch products.');
+    }
     return response.json();
 };
