@@ -9,7 +9,7 @@ const Home = async () => {
     const data = await fetch(process.env.NEXT_PUBLIC_API_URL + '/products').then((res) => res.json());
 
 
-    console.log('data: ', data);
+    // console.log('data: ', data);
 
     return (
         <PosContainer data={data} />
