@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { login } from "@/app/_api";
 import Swal from 'sweetalert2'
+import Link from "next/link";
 
 
 const LoginContainer = () => {
@@ -17,54 +18,42 @@ const LoginContainer = () => {
         e.preventDefault();
         setLoading(true);
 
-        const res = await fetch(process.env.NEXT_PUBLIC_API_URL + '/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email,
-                password
-            })
-        }).catch((err) => {
+        const res = await login({ email, password }).catch((err) => {
             console.log(err);
         });
 
-        console.log('login response: ', res);
-
-        setLoading(false);
-
-        if (res.ok) {
+        if (res.status == true) {
             Swal.fire({
                 icon: 'success',
-                title: 'Login successful',
-                showConfirmButton: false,
+                title: res.message,
+                showConfirmButton: true,
                 timer: 1500
             });
-            const data = await res.json();
-            console.log('response after ok: ', data);
+            const data = await res.data;
 
             const accessToken = data.access_token;
-            document.cookie = `user=${JSON.stringify({ token: accessToken })}; Path=/; Max-Age=3600; Secure; SameSite=Strict`;
+            document.cookie = `user=${JSON.stringify({ token: accessToken, user: data?.user })}; Path=/; Max-Age=3600; Secure; SameSite=Strict`;
 
             router.push('/');
+
+            setLoading(false);
         }else{
             Swal.fire({
                 icon: 'error',
-                title: 'Login failed',
+                title: res.message,
                 showConfirmButton: false,
                 timer: 1500
             });
+
+            setLoading(false);
         }
-
-
     }
 
 
 
 
     return (
-        <section className="min-h-screen flex justify-center items-center bg-slate-200">
+        <section className="min-h-screen flex flex-col justify-center items-center bg-slate-200">
             <form onSubmit={HandleLogin} method="post" className="bg-white p-4">
                 <h1 className="text-center text-2xl">Login</h1>
                 <div className="flex flex-col gap-2">
@@ -86,13 +75,16 @@ const LoginContainer = () => {
                     </div>
 
                     <div className="flex justify-end">
-                        <button type="submit" className="bg-blue-600 text-white py-1 px-2 rounded">
+                        <button disabled={loading} type="submit" className={`bg-blue-600 text-white py-1 px-2 rounded ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}>
                             {loading ? 'Loading...' : 'Login'}
                         </button>
                     </div>
                 </div>
-
             </form>
+            
+            <div className="mt-4">
+                <p>Don't have an account? <Link href={{ pathname: '/register' }} shallow>Register</Link></p>
+            </div>
         </section>
     )
 };

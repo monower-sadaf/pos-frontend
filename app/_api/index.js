@@ -23,9 +23,5 @@ export const login = async (data) => {
         body: JSON.stringify(data),
     });
 
-    if (!response.ok) {
-        throw new Error('Failed to login.');
-    }else{
-        return response.json();
-    }
+    return response.json();
 };
