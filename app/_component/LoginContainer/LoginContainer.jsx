@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { login } from "@/app/_api";
+import Swal from 'sweetalert2'
 
 
 const LoginContainer = () => {
@@ -33,6 +35,12 @@ const LoginContainer = () => {
         setLoading(false);
 
         if (res.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Login successful',
+                showConfirmButton: false,
+                timer: 1500
+            });
             const data = await res.json();
             console.log('response after ok: ', data);
 
@@ -40,6 +48,13 @@ const LoginContainer = () => {
             document.cookie = `user=${JSON.stringify({ token: accessToken })}; Path=/; Max-Age=3600; Secure; SameSite=Strict`;
 
             router.push('/');
+        }else{
+            Swal.fire({
+                icon: 'error',
+                title: 'Login failed',
+                showConfirmButton: false,
+                timer: 1500
+            });
         }
 
 
@@ -71,7 +86,9 @@ const LoginContainer = () => {
                     </div>
 
                     <div className="flex justify-end">
-                        <button type="submit" className="bg-blue-600 text-white py-1 px-2 rounded">Login</button>
+                        <button type="submit" className="bg-blue-600 text-white py-1 px-2 rounded">
+                            {loading ? 'Loading...' : 'Login'}
+                        </button>
                     </div>
                 </div>
 
