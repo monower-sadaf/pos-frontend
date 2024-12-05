@@ -1,9 +1,13 @@
 export const revalidate = 3600;
 
+import { cookies } from "next/headers";
 import Link from "next/link";
 import ProductContainer from "@/app/_component/ProductContainer/ProductContainer";
 const Home = async () => {
-    const data = await fetch(process.env.NEXT_PUBLIC_API_URL + '/products').then((res) => res.json());
+    const cookieStore = cookies();
+    const userCookie = cookieStore.get('user');
+    const token = userCookie ? JSON.parse(userCookie.value).token : null;
+    const data = await fetch(process.env.NEXT_PUBLIC_API_URL + '/products', { headers: { Authorization: `Bearer ${token}` } }).then((res) => res.json());
 
 
 

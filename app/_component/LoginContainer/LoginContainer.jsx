@@ -2,55 +2,66 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import { login } from "@/app/_api";
-import Swal from 'sweetalert2'
+import Swal from "sweetalert2";
 import Link from "next/link";
-
 
 const LoginContainer = () => {
     const [loading, setLoading] = useState(false);
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const router = useRouter();
-
+    const { login: setAuth } = useAuth();
 
     const HandleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
 
-        const res = await login({ email, password }).catch((err) => {
-            console.log(err);
-        });
+        try {
+            const res = await login({ email, password });
 
-        if (res.status == true) {
+            if (res.status === true) {
+                Swal.fire({
+                    icon: "success",
+                    title: res.message,
+                    showConfirmButton: true,
+                    timer: 1500,
+                });
+
+                const data = res.data;
+                const accessToken = data.access_token;
+
+                // Save auth state in context
+                setAuth(data.user, accessToken);
+
+                // Optionally store in cookies for persistence
+                document.cookie = `user=${JSON.stringify({
+                    token: accessToken,
+                    user: data?.user,
+                })}; Path=/; Max-Age=3600; Secure; SameSite=Strict`;
+
+                router.push("/");
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: res.message,
+                    showConfirmButton: false,
+                    timer: 1500,
+                });
+            }
+        } catch (error) {
+            console.error("Login Error:", error);
             Swal.fire({
-                icon: 'success',
-                title: res.message,
-                showConfirmButton: true,
-                timer: 1500
-            });
-            const data = await res.data;
-
-            const accessToken = data.access_token;
-            document.cookie = `user=${JSON.stringify({ token: accessToken, user: data?.user })}; Path=/; Max-Age=3600; Secure; SameSite=Strict`;
-
-            router.push('/');
-
-            setLoading(false);
-        }else{
-            Swal.fire({
-                icon: 'error',
-                title: res.message,
+                icon: "error",
+                title: "An error occurred. Please try again.",
                 showConfirmButton: false,
-                timer: 1500
+                timer: 1500,
             });
-
+        } finally {
             setLoading(false);
         }
-    }
-
-
-
+    };
 
     return (
         <section className="min-h-screen flex flex-col justify-center items-center bg-slate-200">
@@ -62,7 +73,15 @@ const LoginContainer = () => {
                             <legend>
                                 <label htmlFor="email">Email</label>
                             </legend>
-                            <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" name="email" id="email" className="w-full outline-none py-1" placeholder="Enter your email" />
+                            <input
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                type="email"
+                                name="email"
+                                id="email"
+                                className="w-full outline-none py-1"
+                                placeholder="Enter your email"
+                            />
                         </fieldset>
                     </div>
                     <div>
@@ -70,23 +89,41 @@ const LoginContainer = () => {
                             <legend>
                                 <label htmlFor="password">Password</label>
                             </legend>
-                            <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" name="password" id="password" className="w-full outline-none py-1" placeholder="Enter your password" />
+                            <input
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                type="password"
+                                name="password"
+                                id="password"
+                                className="w-full outline-none py-1"
+                                placeholder="Enter your password"
+                            />
                         </fieldset>
                     </div>
 
                     <div className="flex justify-end">
-                        <button disabled={loading} type="submit" className={`bg-blue-600 text-white py-1 px-2 rounded ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                            {loading ? 'Loading...' : 'Login'}
+                        <button
+                            disabled={loading}
+                            type="submit"
+                            className={`bg-blue-600 text-white py-1 px-2 rounded ${loading ? "opacity-50 cursor-not-allowed" : ""
+                                }`}
+                        >
+                            {loading ? "Loading..." : "Login"}
                         </button>
                     </div>
                 </div>
             </form>
-            
+
             <div className="mt-4">
-                <p>Don't have an account? <Link href={{ pathname: '/register' }} shallow>Register</Link></p>
+                <p>
+                    Don't have an account?{" "}
+                    <Link href={{ pathname: "/register" }} shallow>
+                        Register
+                    </Link>
+                </p>
             </div>
         </section>
-    )
+    );
 };
 
 export default LoginContainer;

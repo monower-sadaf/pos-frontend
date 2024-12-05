@@ -2,18 +2,12 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 const Sidebar = () => {
     const router = useRouter();
+    const { auth, logout } = useAuth();
 
-    const HandleLogout = () => {
-        // Delete the "user" cookie
-        document.cookie = "user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-
-        // Redirect to the login page
-        // router.push("/login");
-        window.location.href = "/login";
-    };
 
     return (
         <div className="bg-gray-200 min-w-60 p-4">
@@ -43,7 +37,7 @@ const Sidebar = () => {
                 </li>
                 <li>
                     <button
-                        onClick={HandleLogout}
+                        onClick={() => logout()}
                         className="text-red-500 hover:underline"
                     >
                         Logout

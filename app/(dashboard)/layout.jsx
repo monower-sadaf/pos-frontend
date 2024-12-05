@@ -1,13 +1,19 @@
+
+
+// import { AuthProvider } from "@/context/AuthContext";
 import Sidebar from "../_component/Sidebar/Sidebar";
 
 const Layout = ({ children }) => {
     return (
-        <div className="flex">
-            <Sidebar />
-            <div className="grow">
-                {children}
+        // <AuthProvider>
+            <div className="flex">
+                <Sidebar />
+                <div className="grow">
+                    {children}
+                </div>
             </div>
-        </div>
+        // </AuthProvider>
+
     );
 };
 
