@@ -129,6 +129,13 @@ const PosContainer = ({ data }) => {
 
             console.log('response: ', response);
 
+            if(response.status == true){
+                setMessage("Sale processed successfully!");
+                setCart([]);
+            }else{
+                setMessage("Failed to process sale.");
+            }
+
             /* if (response.ok) {
                 setMessage("Sale processed successfully!");
                 setCart([]);
