@@ -77,3 +77,17 @@ export const deleteProduct = async (id, token) => {
 
     return response;
 };
+
+export const createProduct = async (data, token) => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/product/create`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+    }).then((res) => res.json()).catch((err) => console.log(err));
+
+    return response;
+};

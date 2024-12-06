@@ -57,13 +57,13 @@ const LoginContainer = () => {
 
     return (
         <section className="min-h-screen flex flex-col justify-center items-center bg-slate-200">
-            <form onSubmit={HandleLogin} method="post" className="bg-white p-4">
+            <form onSubmit={HandleLogin} method="post" className="bg-white p-4 rounded min-w-[20em]">
                 <h1 className="text-center text-2xl">Login</h1>
                 <div className="flex flex-col gap-2">
                     <div>
                         <fieldset className="border border-slate-400 px-2 rounded">
                             <legend>
-                                <label htmlFor="email">Email</label>
+                                <label htmlFor="email" className="text-sm bg-white px-1">Email</label>
                             </legend>
                             <input
                                 value={email}
@@ -79,7 +79,7 @@ const LoginContainer = () => {
                     <div>
                         <fieldset className="border border-slate-400 px-2 rounded">
                             <legend>
-                                <label htmlFor="password">Password</label>
+                                <label htmlFor="password" className="text-sm bg-white px-1">Password</label>
                             </legend>
                             <input
                                 value={password}
@@ -109,7 +109,7 @@ const LoginContainer = () => {
             <div className="mt-4">
                 <p>
                     Don't have an account?
-                    <Link href={{ pathname: "/register" }} shallow className="text-blue-600 ml-2">
+                    <Link href={{ pathname: "/register" }} shallow className="text-blue-600 ml-2 hover:underline">
                         Register
                     </Link>
                 </p>
