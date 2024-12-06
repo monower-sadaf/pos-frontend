@@ -91,3 +91,17 @@ export const createProduct = async (data, token) => {
 
     return response;
 };
+
+
+export const register = async (data) => {
+    const response = await fetch(process.env.NEXT_PUBLIC_API_URL + '/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify(data),
+    }).then((res) => res.json()).catch((err) => console.log(err));
+
+    return response;
+};

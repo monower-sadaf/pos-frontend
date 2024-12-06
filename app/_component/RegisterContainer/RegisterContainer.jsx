@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { register } from "@/app/_api";
+import Swal from "sweetalert2";
 
 
 
@@ -17,73 +19,79 @@ const RegisterContainer = () => {
         e.preventDefault();
         setLoading(true);
 
-        const res = await fetch(process.env.NEXT_PUBLIC_API_URL + '/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                name,
-                email,
-                password,
-                password_confirmation: confirmPassword
-            })
-        }).catch((err) => {
-            console.log(err);
-        });
 
-        console.log('login response: ', res);
+        const res = await register({ name, email, password, password_confirmation: confirmPassword }).catch((err) => console.log(err));
+
+        if (res.status) {
+            Swal.fire({
+                icon: "success",
+                title: res.message,
+                showConfirmButton: true,
+                timer: 1500,
+            });
+        } else {
+            setName('');
+            setEmail('');
+            setPassword('');
+            setConfirmPassword('');
+
+            Swal.fire({
+                icon: "error",
+                title: res.message.email,
+                showConfirmButton: false,
+                timer: 1500,
+            });
+        }
 
         setLoading(false);
-
-        if (res.ok) {
-            const data = await res.json();
-            console.log('response after ok: ', data);
-
-        }
     }
 
 
     return (
         <section className="min-h-screen flex flex-col justify-center items-center bg-slate-200">
-            <form onSubmit={HandleRegister} method="post" className="bg-white p-4">
+            <form onSubmit={HandleRegister} method="post" className="bg-white p-4 rounded min-w-[20em]">
                 <h1 className="text-center text-2xl">Register</h1>
                 <div className="flex flex-col gap-2">
                     <div>
                         <fieldset className="border border-slate-400 px-2 rounded">
                             <legend>
-                                <label htmlFor="email">Name</label>
+                                <label htmlFor="email" className="text-sm bg-white px-1 after:content-['_*'] after:text-red-600">Name</label>
                             </legend>
-                            <input value={name} onChange={(e) => setName(e.target.value)} type="text" name="name" id="name" className="w-full outline-none py-1" placeholder="Enter your Name" />
+                            <input value={name} onChange={(e) => setName(e.target.value)} type="text" name="name" id="name" className="w-full outline-none py-1" placeholder="Enter your Name" required />
                         </fieldset>
                     </div>
                     <div>
                         <fieldset className="border border-slate-400 px-2 rounded">
                             <legend>
-                                <label htmlFor="email">Email</label>
+                                <label htmlFor="email" className="text-sm bg-white px-1 after:content-['_*'] after:text-red-600">Email</label>
                             </legend>
-                            <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" name="email" id="email" className="w-full outline-none py-1" placeholder="Enter your email" />
+                            <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" name="email" id="email" className="w-full outline-none py-1" placeholder="Enter your email" required />
                         </fieldset>
                     </div>
                     <div>
                         <fieldset className="border border-slate-400 px-2 rounded">
                             <legend>
-                                <label htmlFor="password">Password</label>
+                                <label htmlFor="password" className="text-sm bg-white px-1 after:content-['_*'] after:text-red-600">Password</label>
                             </legend>
-                            <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" name="password" id="password" className="w-full outline-none py-1" placeholder="Enter your password" />
+                            <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" name="password" id="password" className="w-full outline-none py-1" placeholder="Enter your password" required />
                         </fieldset>
                     </div>
                     <div>
                         <fieldset className="border border-slate-400 px-2 rounded">
                             <legend>
-                                <label htmlFor="confirmPassword">Confirm Password</label>
+                                <label htmlFor="confirmPassword" className="text-sm bg-white px-1 after:content-['_*'] after:text-red-600">Confirm Password</label>
                             </legend>
-                            <input value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} type="password" name="confirmPassword" id="confirmPassword" className="w-full outline-none py-1" placeholder="Confirm your password" />
+                            <input value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} type="password" name="confirmPassword" id="confirmPassword" className="w-full outline-none py-1" placeholder="Confirm your password" required />
                         </fieldset>
                     </div>
 
-                    <div className="flex justify-end">
-                        <button type="submit" className="bg-blue-600 text-white py-1 px-2 rounded">Register</button>
+                    <div className="flex justify-between items-center">
+                        <p className="text-sm"><span className="text-red-600">*</span> Required</p>
+                        <button disabled={loading} type="submit" className={`bg-blue-600 text-white py-1 px-2 rounded ${loading ? 'cursor-not-allowed opacity-50' : ''}`}>
+                            {
+                                loading ? 'Loading...' : 'Register'
+                            }
+                        </button>
                     </div>
                 </div>
 

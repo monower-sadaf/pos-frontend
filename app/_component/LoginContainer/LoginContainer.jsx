@@ -63,7 +63,7 @@ const LoginContainer = () => {
                     <div>
                         <fieldset className="border border-slate-400 px-2 rounded">
                             <legend>
-                                <label htmlFor="email" className="text-sm bg-white px-1">Email</label>
+                                <label htmlFor="email" className="text-sm bg-white px-1 after:content-['_*'] after:text-red-600">Email</label>
                             </legend>
                             <input
                                 value={email}
@@ -73,13 +73,14 @@ const LoginContainer = () => {
                                 id="email"
                                 className="w-full outline-none py-1"
                                 placeholder="Enter your email"
+                                required
                             />
                         </fieldset>
                     </div>
                     <div>
                         <fieldset className="border border-slate-400 px-2 rounded">
                             <legend>
-                                <label htmlFor="password" className="text-sm bg-white px-1">Password</label>
+                                <label htmlFor="password" className="text-sm bg-white px-1 after:content-['_*'] after:text-red-600">Password</label>
                             </legend>
                             <input
                                 value={password}
@@ -89,11 +90,13 @@ const LoginContainer = () => {
                                 id="password"
                                 className="w-full outline-none py-1"
                                 placeholder="Enter your password"
+                                required
                             />
                         </fieldset>
                     </div>
 
-                    <div className="flex justify-end">
+                    <div className="flex justify-between items-center">
+                        <p className="text-sm"><span className="text-red-600">*</span> Required</p>
                         <button
                             disabled={loading}
                             type="submit"

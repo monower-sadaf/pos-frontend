@@ -21,7 +21,7 @@ const ProductContainer = ({ data, token }) => {
             try {
                 const response = await deleteProduct(id, token).catch((err) => console.log(err));
 
-                if(response.status){
+                if (response.status) {
                     Swal.fire(
                         'Deleted!',
                         'Product has been deleted.',
@@ -29,7 +29,7 @@ const ProductContainer = ({ data, token }) => {
                     );
 
                     window.location.reload();
-                }else{
+                } else {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
@@ -37,7 +37,7 @@ const ProductContainer = ({ data, token }) => {
                     });
                 }
 
-                
+
             } catch (error) {
                 console.log(error);
             }
@@ -46,19 +46,21 @@ const ProductContainer = ({ data, token }) => {
 
     return (
         <section className="p-4">
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-4 gap-4 lg:gap-0">
                 <h1 className="text-2xl font-bold">Product List</h1>
-                <Link href={
-                    {
-                        pathname: '/products/create'
-                    }
-                } shallow className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-                    Add New
-                </Link>
+                <div>
+                    <Link href={
+                        {
+                            pathname: '/products/create'
+                        }
+                    } shallow className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                        Add New
+                    </Link>
+                </div>
             </div>
             {data && data.length > 0 ? (
                 <div className="overflow-x-auto">
-                    <table className="table-auto w-full border-collapse border border-gray-200">
+                    <table className="w-full border-collapse border border-gray-200">
                         <thead>
                             <tr className="bg-gray-100">
                                 <th className="border border-gray-300 px-4 py-2">ID</th>
@@ -115,7 +117,7 @@ const ProductContainer = ({ data, token }) => {
                                     <td className="border border-gray-300 px-4 py-2 text-center">
                                         <button onClick={() => handleDelete(product.id)} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Delete</button>
                                     </td>
-                                    
+
                                 </tr>
                             ))}
                         </tbody>
