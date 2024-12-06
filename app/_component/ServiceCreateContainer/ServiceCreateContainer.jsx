@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from "react";
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
 const ServiceCreateContainer = () => {
@@ -60,7 +60,7 @@ const ServiceCreateContainer = () => {
             console.log('product create response: ', response);
 
             if (response.ok) {
-                toast.success('Product added successfully!');
+                // toast.success('Product added successfully!');
                 setMessage('Product added successfully!');
                 setFormData({
                     name: '',
@@ -75,7 +75,7 @@ const ServiceCreateContainer = () => {
 
                 router.push('/products');
             } else {
-                toast.error('Failed to add product.');
+                // toast.error('Failed to add product.');
                 const errorData = await response.json();
                 if (errorData.errors) {
                     setErrors(errorData.errors);

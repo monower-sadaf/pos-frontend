@@ -2,14 +2,16 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
+import { logoutUser } from "@/app/_api";
 
-// Create AuthContext
+
 const AuthContext = createContext();
 
-// Custom hook to use AuthContext
+
 export const useAuth = () => useContext(AuthContext);
 
-// Helper function to get cookies
+
 const getCookie = (name) => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -17,7 +19,7 @@ const getCookie = (name) => {
     return null;
 };
 
-// AuthProvider component
+
 export const AuthProvider = ({ children }) => {
     const router = useRouter();
     const [auth, setAuth] = useState({
@@ -25,7 +27,6 @@ export const AuthProvider = ({ children }) => {
         token: null,
     });
 
-    // Check cookies for auth data on mount
     useEffect(() => {
         const storedUser = getCookie('user');
         if (storedUser) {
@@ -41,19 +42,34 @@ export const AuthProvider = ({ children }) => {
     const login = (user, token) => {
         setAuth({ user, token });
 
-        // Store in cookies for persistence
         document.cookie = `user=${JSON.stringify({ token, user })}; Path=/; Max-Age=3600; Secure; SameSite=Strict`;
 
-        // Redirect to dashboard page
         router.push('/');
     };
 
-    const logout = () => {
-        setAuth({ user: null, token: null });
-        document.cookie = `user=; Path=/; Max-Age=0; Secure; SameSite=Strict`; // Clear cookie
+    const logout = async () => {
 
-        // Redirect to login page
-        window.location.href = '/login';
+        const response = await logoutUser(auth.token).catch((err) => console.log(err));
+
+        if (!response?.status) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to logout',
+            });
+        } else {
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Logout successful',
+            });
+
+            setAuth({ user: null, token: null });
+            document.cookie = `user=; Path=/; Max-Age=0; Secure; SameSite=Strict`;
+
+            window.location.href = '/login';
+        }
     };
 
     return (

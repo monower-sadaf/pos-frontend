@@ -2,16 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { proceeedSale } from "@/app/_api";
+import { useAuth } from "@/context/AuthContext";
 
 const MIN_STOCK = 5;
 
 const PosContainer = ({ data }) => {
+    const { token } = useAuth();
     const [products, setProducts] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [cart, setCart] = useState([]);
     const [message, setMessage] = useState("");
 
-    // Filter products based on search term and exclude products with stock <= MIN_STOCK
     useEffect(() => {
         const filteredProducts = data
             .filter((product) =>
@@ -20,7 +21,7 @@ const PosContainer = ({ data }) => {
         setProducts(filteredProducts);
     }, [searchTerm, data]);
 
-    // Add product to cart and update stock in real-time
+
     const addToCart = (product) => {
         if (product.stock - 1 < MIN_STOCK) {
             setMessage(
@@ -52,12 +53,12 @@ const PosContainer = ({ data }) => {
         }
     };
 
-    // Remove product from cart
+
     const removeFromCart = (productId) => {
         setCart(cart.filter((item) => item.id !== productId));
     };
 
-    // Update quantity in cart and check if it would drop stock below minimum
+
     const updateQuantity = (productId, quantity) => {
         const product = products.find((item) => item.id === productId);
 
@@ -76,7 +77,7 @@ const PosContainer = ({ data }) => {
         );
     };
 
-    // Calculate totals
+
     const calculateTotals = () => {
         let totalBeforeDiscount = 0;
         let totalDiscount = 0;
@@ -106,7 +107,7 @@ const PosContainer = ({ data }) => {
 
     const { totalBeforeDiscount, totalDiscount, finalTotal } = calculateTotals();
 
-    // Process sale
+
     const processSale = async () => {
         if (cart.length === 0) {
             setMessage("Your cart is empty.");
@@ -125,9 +126,7 @@ const PosContainer = ({ data }) => {
         const payload = { items: saleData };
 
         try {
-            const response = await proceeedSale(payload);
-
-            console.log('response: ', response);
+            const response = await proceeedSale(payload, token).catch((err) => console.log(err));
 
             if(response.status == true){
                 setMessage("Sale processed successfully!");
@@ -136,12 +135,6 @@ const PosContainer = ({ data }) => {
                 setMessage("Failed to process sale.");
             }
 
-            /* if (response.ok) {
-                setMessage("Sale processed successfully!");
-                setCart([]);
-            } else {
-                setMessage("Failed to process sale.");
-            } */
         } catch (err) {
             setMessage("An error occurred while processing the sale.");
             console.error(err);
