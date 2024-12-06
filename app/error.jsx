@@ -11,7 +11,7 @@ const Error = ({ error, reset }) => {
           onClick={() => reset()}
           className="bg-red-600 text-white px-4 py-2 rounded"
         >
-          রিফ্রেশ করুন
+          Refresh
         </button>
       </section>
     );

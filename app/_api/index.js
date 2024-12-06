@@ -105,3 +105,29 @@ export const register = async (data) => {
 
     return response;
 };
+
+export const getSingleProduct = async (id, token) => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/product/${id}`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
+    }).then((res) =>res.json()).catch((err) => console.log(err));
+
+    return response;
+};
+
+export const updateProduct = async (id, data, token) => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/product/update/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+    }).then((res) => res.json()).catch((err) => console.log(err));
+
+    return response;
+};

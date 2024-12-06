@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { proceeedSale } from "@/app/_api";
 import { useAuth } from "@/context/AuthContext";
+import Swal from "sweetalert2";
 
 const MIN_STOCK = 5;
 
@@ -13,14 +14,6 @@ const PosContainer = ({ data }) => {
     const [cart, setCart] = useState([]);
     const [message, setMessage] = useState("");
 
-    useEffect(() => {
-        const filteredProducts = data
-            .filter((product) =>
-                product.name.toLowerCase().includes(searchTerm.toLowerCase()) && product.stock > MIN_STOCK // Only show products with stock > MIN_STOCK
-            );
-        setProducts(filteredProducts);
-    }, [searchTerm, data]);
-
 
     const addToCart = (product) => {
         if (product.stock - 1 < MIN_STOCK) {
@@ -30,15 +23,8 @@ const PosContainer = ({ data }) => {
             return;
         }
 
-        // Update the stock in the products list in real-time
-        const updatedProducts = products.map((item) =>
-            item.id === product.id
-                ? { ...item, stock: item.stock - 1 } // Decrease the stock by 1
-                : item
-        );
-        setProducts(updatedProducts);
+        setProducts(products.filter((item) => item.id !== product.id));
 
-        // Add item to the cart
         const existingItem = cart.find((item) => item.id === product.id);
         if (existingItem) {
             setCart(
@@ -53,11 +39,12 @@ const PosContainer = ({ data }) => {
         }
     };
 
-
     const removeFromCart = (productId) => {
+        const product = cart.find((item) => item.id === productId);
         setCart(cart.filter((item) => item.id !== productId));
-    };
 
+        setProducts([...products, { ...product, stock: product.stock }]);
+    };
 
     const updateQuantity = (productId, quantity) => {
         const product = products.find((item) => item.id === productId);
@@ -69,14 +56,12 @@ const PosContainer = ({ data }) => {
             return;
         }
 
-        // Update the cart with the new quantity
         setCart(
             cart.map((item) =>
                 item.id === productId ? { ...item, quantity: Math.max(1, quantity) } : item
             )
         );
     };
-
 
     const calculateTotals = () => {
         let totalBeforeDiscount = 0;
@@ -107,7 +92,6 @@ const PosContainer = ({ data }) => {
 
     const { totalBeforeDiscount, totalDiscount, finalTotal } = calculateTotals();
 
-
     const processSale = async () => {
         if (cart.length === 0) {
             setMessage("Your cart is empty.");
@@ -128,11 +112,21 @@ const PosContainer = ({ data }) => {
         try {
             const response = await proceeedSale(payload, token).catch((err) => console.log(err));
 
-            if(response.status == true){
-                setMessage("Sale processed successfully!");
+            if (response.status == true) {
+                Swal.fire({
+                    icon: 'success',
+                    title: response.message,
+                    showConfirmButton: false,
+                    timer: 1500
+                });
                 setCart([]);
-            }else{
-                setMessage("Failed to process sale.");
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: response.message,
+                    showConfirmButton: false,
+                    timer: 1500
+                });
             }
 
         } catch (err) {
@@ -141,29 +135,59 @@ const PosContainer = ({ data }) => {
         }
     };
 
+    const HandleSearch = (term) => {
+        const filteredProducts = data.filter(
+            (product) =>
+                product.name.toLowerCase().includes(term.toLowerCase()) &&
+                product.stock > MIN_STOCK &&
+                !cart.some((cartItem) => cartItem.id === product.id)
+        );
+        setProducts(filteredProducts);
+    };
+
+    const ClearSearch = () => {
+        setSearchTerm('');
+        setProducts([]);
+        setMessage('');
+    };
+
     return (
         <div className="container mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">Point of Sale</h1>
-            {message && <p className="mt-4 text-red-500">{message}</p>}
+            {/* {message && <p className="mt-4 text-red-500">{message}</p>} */}
 
-            {/* Product Search */}
-            <div className="mb-4">
+            <div className="mb-4 flex gap-2">
                 <input
                     type="text"
                     placeholder="Search for products"
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e) => {
+                        const term = e.target.value;
+                        setSearchTerm(term);
+                        HandleSearch(term);
+
+                        if (term?.length == 0) {
+                            ClearSearch();
+                        }
+                    }}
                     className="border rounded p-2 w-3/4"
                 />
+
+                {
+                    searchTerm.length > 0 && (
+                        <button onClick={ClearSearch} className="bg-red-500 text-white px-4 py-2 rounded">
+                            Clear
+                        </button>
+                    )
+                }
             </div>
 
-            {/* Product List */}
             {products.length > 0 ? (
                 <div className="mb-4">
                     <h2 className="text-lg font-semibold mb-2">Search Results</h2>
                     <ul>
                         {products.map((product) => (
-                            <li key={product.id} className="flex justify-between items-center p-2 border-b">
+                            <li onClick={() => addToCart(product)} key={product.id} className="flex justify-between items-center p-2 border-b cursor-pointer hover:bg-gray-100">
                                 <span>{product.name} - ${parseFloat(product.price).toFixed(2)}</span>
                                 <span className="ml-4 text-sm text-gray-500">
                                     Stock: {product.stock}
@@ -189,74 +213,91 @@ const PosContainer = ({ data }) => {
                     </ul>
                 </div>
             ) : (
-                <p className="text-gray-500">No products found.</p>
+                <p className="text-gray-500 text-center">No products found.</p>
             )}
 
-            {/* Cart */}
-            <div className="mb-4">
-                <h2 className="text-lg font-semibold mb-2">Cart</h2>
-                {cart.length > 0 ? (
-                    <table className="table-auto w-full border-collapse border border-gray-200">
-                        <thead>
-                            <tr className="bg-gray-100">
-                                <th className="border border-gray-300 px-4 py-2">Name</th>
-                                <th className="border border-gray-300 px-4 py-2">Price</th>
-                                <th className="border border-gray-300 px-4 py-2">Quantity</th>
-                                <th className="border border-gray-300 px-4 py-2">Subtotal</th>
-                                <th className="border border-gray-300 px-4 py-2">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {cart.map((item) => (
-                                <tr key={item.id} className="hover:bg-gray-50">
-                                    <td className="border border-gray-300 px-4 py-2">{item.name}</td>
-                                    <td className="border border-gray-300 px-4 py-2">${parseFloat(item.price).toFixed(2)}</td>
-                                    <td className="border border-gray-300 px-4 py-2">
-                                        <input
-                                            type="number"
-                                            value={item.quantity}
-                                            min="1"
-                                            onChange={(e) =>
-                                                updateQuantity(item.id, parseInt(e.target.value) || 1)
-                                            }
-                                            className="border rounded p-1 w-16 text-center"
-                                        />
-                                    </td>
-                                    <td className="border border-gray-300 px-4 py-2">
-                                        ${(item.price * item.quantity).toFixed(2)}
-                                    </td>
-                                    <td className="border border-gray-300 px-4 py-2">
-                                        <button
-                                            onClick={() => removeFromCart(item.id)}
-                                            className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
-                                        >
-                                            Remove
-                                        </button>
-                                    </td>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="">
+                    <h2 className="text-lg font-semibold mb-2">Cart</h2>
+                    {cart.length > 0 ? (
+                        <table className="table-auto w-full border-collapse border border-gray-200">
+                            <thead>
+                                <tr className="bg-gray-100">
+                                    <th className="border border-gray-300 px-4 py-2">Name</th>
+                                    <th className="border border-gray-300 px-4 py-2">Price</th>
+                                    <th className="border border-gray-300 px-4 py-2">Quantity</th>
+                                    <th className="border border-gray-300 px-4 py-2">Subtotal</th>
+                                    <th className="border border-gray-300 px-4 py-2">Action</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                ) : (
-                    <p className="text-gray-500">Your cart is empty.</p>
-                )}
+                            </thead>
+                            <tbody>
+                                {cart.map((item) => (
+                                    <tr key={item.id} className="hover:bg-gray-50">
+                                        <td className="border border-gray-300 px-4 py-2">{item.name}</td>
+                                        <td className="border border-gray-300 px-4 py-2">${parseFloat(item.price).toFixed(2)}</td>
+                                        <td className="border border-gray-300 px-4 py-2">
+                                            <input
+                                                type="number"
+                                                value={item.quantity}
+                                                min="1"
+                                                onChange={(e) => {
+                                                    if(item.stock >= e.target.value) {
+                                                        updateQuantity(item.id, e.target.value);
+                                                    }else {
+                                                        Swal.fire({
+                                                            icon: 'error',
+                                                            title: 'Oops...',
+                                                            text: 'Stock Finished.',
+                                                        })
+                                                    }
+                                                }
+                                                }
+                                                className="border rounded p-1 w-16 text-center"
+                                            />
+                                        </td>
+                                        <td className="border border-gray-300 px-4 py-2">
+                                            ${(item.price * item.quantity).toFixed(2)}
+                                        </td>
+                                        <td className="border border-gray-300 px-4 py-2">
+                                            <button
+                                                onClick={() => removeFromCart(item.id)}
+                                                className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
+                                            >
+                                                Remove
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    ) : (
+                        <p className="text-gray-500">Your cart is empty.</p>
+                    )}
+                </div>
+
+                <div className="">
+                    <div className="flex flex-col items-end mb-4">
+                        <h2 className="text-lg font-semibold mb-2">Summary</h2>
+                        <p>Total Before Discounts: ${totalBeforeDiscount.toFixed(2)}</p>
+                        <p>Total Discounts: -${totalDiscount.toFixed(2)}</p>
+                        <p className="font-bold">Final Total: ${finalTotal.toFixed(2)}</p>
+                    </div>
+
+                    {
+                        finalTotal > 0 && (
+                            <div className="flex justify-end">
+                                <button
+                                    onClick={processSale}
+                                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                                >
+                                    Process Sale
+                                </button>
+                            </div>
+                        )
+                    }
+                </div>
             </div>
 
-            {/* Totals */}
-            <div className="mb-4">
-                <h2 className="text-lg font-semibold mb-2">Summary</h2>
-                <p>Total Before Discounts: ${totalBeforeDiscount.toFixed(2)}</p>
-                <p>Total Discounts: -${totalDiscount.toFixed(2)}</p>
-                <p className="font-bold">Final Total: ${finalTotal.toFixed(2)}</p>
-            </div>
-
-            {/* Process Sale Button */}
-            <button
-                onClick={processSale}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
-                Process Sale
-            </button>
         </div>
     );
 };

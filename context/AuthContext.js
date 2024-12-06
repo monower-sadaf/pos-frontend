@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
-    // Function to update auth state
+
     const login = (user, token) => {
         setAuth({ user, token });
 

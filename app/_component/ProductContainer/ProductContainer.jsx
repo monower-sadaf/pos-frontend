@@ -115,6 +115,11 @@ const ProductContainer = ({ data, token }) => {
                                             : 'N/A'}
                                     </td>
                                     <td className="border border-gray-300 px-4 py-2 text-center">
+                                        <Link href={{
+                                            pathname: `/products/edit/${product.id}`
+                                        }} shallow className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mr-2">
+                                            Edit
+                                        </Link>
                                         <button onClick={() => handleDelete(product.id)} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Delete</button>
                                     </td>
 

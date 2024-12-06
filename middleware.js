@@ -5,7 +5,6 @@ export async function middleware(request) {
   const token = request.cookies.get('user') ? JSON.parse(request.cookies.get('user').value).token : null;
 
   const loginUrl = new URL('/login', request.url);
-  // const dashboardUrl = new URL('/', request.url);
 
   if (!token) {
     return NextResponse.redirect(loginUrl);
