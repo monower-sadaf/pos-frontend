@@ -1,14 +1,8 @@
-
-
-import { cookies } from "next/headers";
 import ServiceCreateContainer from "@/app/_component/ProductCreateContainer/ProductCreateContainer";
+import { getUserToken } from "@/lib/getCookie";
 
 const Home = () => {
-
-    const cookieStore = cookies();
-    const userCookie = cookieStore.get('user');
-    const token = userCookie ? JSON.parse(userCookie.value).token : null;
-
+    const token = getUserToken();
 
     return (
         <ServiceCreateContainer token={token} />
