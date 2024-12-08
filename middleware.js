@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { NextRequest } from 'next/server';
 
 export async function middleware(request) {
   const token = request.cookies.get('user') ? JSON.parse(request.cookies.get('user').value).token : null;
@@ -8,9 +7,9 @@ export async function middleware(request) {
 
   if (!token) {
     return NextResponse.redirect(loginUrl);
+  }else{
+    return NextResponse.next();
   }
-
-  return NextResponse.next();
 }
 
 export const config = {
